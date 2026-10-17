@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>PENDING</title>
+<script src="https://js.puter.com/v2/"></script>
+</head>
+<body>
+<pre id="o">PENDING</pre>
+<script>
+var params=new URLSearchParams(location.search);
+var q=params.get('q')||"In one sentence, what is today's date (UTC) and the current price of Bitcoin in USD right now? Include the exact figure.";
+var model=params.get('model')||"perplexity/sonar";
+document.title='RUNNING';
+(async function(){
+  try{
+    var resp=await puter.ai.chat(q,{model:model});
+    var content=(resp&&resp.message&&resp.message.content)?resp.message.content:(typeof resp==='string'?resp:JSON.stringify(resp));
+    var extra='';
+    try{ if(resp&&resp.message&&resp.message.citations){extra+='\nCITATIONS: '+JSON.stringify(resp.message.citations);} }catch(_){ }
+    try{ if(resp&&resp.citations){extra+='\nCITATIONS2: '+JSON.stringify(resp.citations);} }catch(_){ }
+    document.getElementById('o').textContent='ANSWER_START\n'+content+extra+'\nANSWER_END';
+    document.title='DONE_OK';
+  }catch(e){
+    document.getElementById('o').textContent='ERROR: '+(e&&e.message?e.message:JSON.stringify(e))+'\nDETAIL: '+JSON.stringify(e,Object.getOwnPropertyNames(e||{})).slice(0,2500);
+    document.title='DONE_ERR';
+  }
+})();
+</script>
+</body>
+</html>
