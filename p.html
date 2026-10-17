@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>PROBE_LOADING</title>
+<script src="https://js.puter.com/v2/"></script>
+</head>
+<body>
+<pre id="asyncproof">ASYNC_PROOF: pending</pre>
+<pre id="status">PUTER_STATUS: pending</pre>
+<pre id="answer">PERPLEXITY_ANSWER_START
+(waiting)
+PERPLEXITY_ANSWER_END</pre>
+<pre id="raw">RAW_JSON: (waiting)</pre>
+<script>
+fetch('https://api.github.com/zen').then(function(r){return r.text();}).then(function(t){
+  document.getElementById('asyncproof').textContent='ASYNC_PROOF_OK: '+t;
+}).catch(function(e){document.getElementById('asyncproof').textContent='ASYNC_PROOF_ERR: '+e;});
+
+document.title='PROBE_RUNNING';
+(async function(){
+  try{
+    var q="In one sentence, what is today's date (UTC) and the current price of Bitcoin in US dollars right now? Include the exact figure.";
+    var resp=await puter.ai.chat(q,{model:"perplexity/sonar"});
+    var content=(resp&&resp.message&&resp.message.content)?resp.message.content:(typeof resp==='string'?resp:JSON.stringify(resp));
+    document.getElementById('answer').textContent='PERPLEXITY_ANSWER_START\n'+content+'\nPERPLEXITY_ANSWER_END';
+    document.getElementById('raw').textContent='RAW_JSON: '+JSON.stringify(resp).slice(0,5000);
+    document.getElementById('status').textContent='PUTER_STATUS: ok';
+    document.title='PROBE_DONE_OK';
+  }catch(e){
+    document.getElementById('status').textContent='PUTER_STATUS: ERROR '+(e&&e.message?e.message:JSON.stringify(e));
+    document.getElementById('raw').textContent='RAW_ERR: '+JSON.stringify(e,Object.getOwnPropertyNames(e||{})).slice(0,3000);
+    document.title='PROBE_DONE_ERR';
+  }
+})();
+</script>
+</body>
+</html>
